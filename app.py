@@ -1,22 +1,25 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, make_response
 import mysql.connector
+import os
+from dotenv import load_dotenv
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import csv
 import io
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas as pdf_canvas
-from flask import make_response
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'inventory_secret_key_2024'
+app.secret_key = os.getenv('SECRET_KEY')
 
 def get_db():
     return mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='Admin@1234',
-        database='inventory_db'
+        host=os.getenv('DB_HOST'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME')
     )
 
 @app.route('/')
