@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Database credentials
+*.env
+
+# Excel files
+stock_data.xlsx
+
+# VS Code
+.vscode/
+
+# Python scripts not needed for submission
+create_admin.py
+update_pass.py
+add_staff.py
+add_status.py
+fix_staff.py
+reactivate_all.py
+generate_data.py
