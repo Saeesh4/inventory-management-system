@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Import Excel - Inventory System</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: #f0f2f5; }
@@ -75,7 +76,7 @@
     <div class="main-content">
         <div class="topbar">
             <h5 class="mb-0">📥 Import Excel Data</h5>
-            <a href="/export_csv" class="btn btn-sm btn-success">⬇️ Download Template (CSV)</a>
+            <a href="/export_csv" class="btn btn-sm btn-success">Download Template (CSV)</a>
         </div>
 
         {% with messages = get_flashed_messages() %}
@@ -87,8 +88,9 @@
         <div class="row">
             <div class="col-md-7">
                 <div class="upload-card">
-                    <h6 class="mb-3">📤 Upload Excel File (.xlsx)</h6>
+                    <h6 class="mb-3">Upload Excel File (.xlsx)</h6>
                     <form method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
                             <div style="font-size:48px;">📊</div>
                             <h6>Click to select Excel file</h6>
@@ -99,7 +101,7 @@
                         </div>
                         <p id="fileName" class="text-center mt-2 text-primary fw-bold"></p>
                         <button type="submit" class="btn btn-dark w-100 mt-3">
-                            📥 Import Data
+                            Import Data
                         </button>
                     </form>
                 </div>
@@ -107,7 +109,7 @@
 
             <div class="col-md-5">
                 <div class="upload-card">
-                    <h6 class="mb-3">📋 Required Excel Format</h6>
+                    <h6 class="mb-3">Required Excel Format</h6>
                     <p class="text-muted" style="font-size:13px;">Your Excel file must have 2 sheets:</p>
 
                     <p><strong>Sheet 1: Products</strong></p>
@@ -123,7 +125,7 @@
                     </table>
 
                     <div class="alert alert-warning mt-3" style="font-size:12px;">
-                        ⚠️ Run <strong>py create_template.py</strong> in your terminal to download a ready-made template file!
+                        Run <strong>python create_template.py</strong> in your terminal to generate a ready-made template file!
                     </div>
                 </div>
             </div>

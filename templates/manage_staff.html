@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Staff - Inventory System</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: #f0f2f5; }
@@ -60,18 +61,6 @@
             width: 380px;
             padding: 30px;
             text-align: center;
-        }
-        .modal-header-custom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .close-btn {
-            border: none;
-            background: none;
-            font-size: 20px;
-            cursor: pointer;
         }
         .status-active { color: #11998e; font-weight: bold; }
         .status-suspended { color: #ff416c; font-weight: bold; }
@@ -130,22 +119,19 @@
         <!-- Staff Summary Cards -->
         <div class="row mb-4">
             <div class="col-md-4">
-                <div style="background:linear-gradient(135deg,#0072ff,#00c6ff);
-                            border-radius:12px; padding:20px; color:white;">
+                <div style="background:linear-gradient(135deg,#0072ff,#00c6ff); border-radius:12px; padding:20px; color:white;">
                     <p>Total Staff</p>
                     <h2>{{ staff_list|length }}</h2>
                 </div>
             </div>
             <div class="col-md-4">
-                <div style="background:linear-gradient(135deg,#11998e,#38ef7d);
-                            border-radius:12px; padding:20px; color:white;">
+                <div style="background:linear-gradient(135deg,#11998e,#38ef7d); border-radius:12px; padding:20px; color:white;">
                     <p>Active Staff</p>
                     <h2>{{ staff_list|selectattr('status','equalto','active')|list|length }}</h2>
                 </div>
             </div>
             <div class="col-md-4">
-                <div style="background:linear-gradient(135deg,#ff416c,#ff4b2b);
-                            border-radius:12px; padding:20px; color:white;">
+                <div style="background:linear-gradient(135deg,#ff416c,#ff4b2b); border-radius:12px; padding:20px; color:white;">
                     <p>Suspended Staff</p>
                     <h2>{{ staff_list|selectattr('status','equalto','suspended')|list|length }}</h2>
                 </div>
@@ -161,43 +147,28 @@
                     <span class="badge bg-secondary">{{ staff['role'] }}</span>
                     <span class="ms-2 status-{{ staff['status'] or 'active' }}">
                         {% if staff['status'] == 'suspended' %}
-                            🔴 Suspended
+                            Suspended
                         {% else %}
-                            🟢 Active
+                            Active
                         {% endif %}
                     </span>
                 </div>
                 <div style="display:flex; gap:10px;">
                     {% if staff['status'] == 'suspended' %}
-                    <button class="btn btn-sm btn-success"
-                        onclick="showConfirm(
-                            '✅', 
-                            'Reactivate Staff?',
-                            'Are you sure you want to reactivate {{ staff['username'] }}?',
-                            '/suspend_staff/{{ staff['id'] }}',
-                            'success')">
-                        ✅ Reactivate
-                    </button>
+                    <form method="POST" action="/suspend_staff/{{ staff['id'] }}" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Reactivate {{ staff['username'] }}?')">Reactivate</button>
+                    </form>
                     {% else %}
-                    <button class="btn btn-sm btn-warning"
-                        onclick="showConfirm(
-                            '⏸️',
-                            'Suspend Staff?',
-                            'Are you sure you want to suspend {{ staff['username'] }}? They will not be able to login.',
-                            '/suspend_staff/{{ staff['id'] }}',
-                            'warning')">
-                        ⏸️ Suspend
-                    </button>
+                    <form method="POST" action="/suspend_staff/{{ staff['id'] }}" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Suspend {{ staff['username'] }}? They will not be able to login.')">Suspend</button>
+                    </form>
                     {% endif %}
-                    <button class="btn btn-sm btn-danger"
-                        onclick="showConfirm(
-                            '🗑️',
-                            'Remove Staff?',
-                            'Permanently remove {{ staff['username'] }}? This cannot be undone.',
-                            '/delete_staff/{{ staff['id'] }}',
-                            'danger')">
-                        🗑️ Remove
-                    </button>
+                    <form method="POST" action="/delete_staff/{{ staff['id'] }}" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Permanently remove {{ staff['username'] }}? This cannot be undone.')">Remove</button>
+                    </form>
                 </div>
             </div>
             {% endfor %}
@@ -213,26 +184,21 @@
     <!-- Add Staff Modal -->
     <div class="overlay" id="staffOverlay">
         <div class="modal-box">
-            <div class="modal-header-custom">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h5>Add New Staff Member</h5>
-                <button class="close-btn" onclick="hideAddModal()">✕</button>
+                <button onclick="hideAddModal()" style="border:none; background:none; font-size:20px;">✕</button>
             </div>
             <form method="POST" action="/add_staff">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="mb-3">
                     <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control"
-                           placeholder="e.g. john_staff" required autocomplete="off">
+                    <input type="text" name="username" class="form-control" placeholder="e.g. john_staff" required autocomplete="off">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Password</label>
                     <div style="position:relative;">
-                        <input type="password" name="password" id="staffPass"
-                               class="form-control" placeholder="Min 6 characters"
-                               required autocomplete="off">
-                        <button type="button" onclick="togglePass()"
-                                style="position:absolute; right:10px; top:50%;
-                                transform:translateY(-50%); border:none;
-                                background:none; cursor:pointer; font-size:18px;">👁️</button>
+                        <input type="password" name="password" id="staffPass" class="form-control" placeholder="Min 6 characters" required autocomplete="off">
+                        <button type="button" onclick="togglePass()" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); border:none; background:none; cursor:pointer; font-size:18px;">👁️</button>
                     </div>
                 </div>
                 <div class="mb-3">
@@ -242,59 +208,20 @@
                         <option value="manager">Manager</option>
                     </select>
                 </div>
-                <div style="display:flex; justify-content:flex-end;
-                            gap:10px; margin-top:20px;">
-                    <button type="button" class="btn btn-secondary"
-                            onclick="hideAddModal()">Cancel</button>
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="hideAddModal()">Cancel</button>
                     <button type="submit" class="btn btn-dark">Add Staff</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Custom Confirm Modal -->
-    <div class="overlay" id="confirmOverlay">
-        <div class="confirm-box">
-            <div class="confirm-icon" id="confirmIcon"></div>
-            <div class="confirm-title" id="confirmTitle"></div>
-            <div class="confirm-msg" id="confirmMsg"></div>
-            <div class="confirm-buttons">
-                <button class="btn btn-secondary"
-                        onclick="hideConfirm()">Cancel</button>
-                <button id="confirmBtn" class="btn btn-danger"
-                        onclick="doConfirm()">Confirm</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        var confirmUrl = '';
-
-        function showAddModal() {
-            document.getElementById('staffOverlay').style.display = 'flex';
-        }
-        function hideAddModal() {
-            document.getElementById('staffOverlay').style.display = 'none';
-        }
+        function showAddModal() { document.getElementById('staffOverlay').style.display = 'flex'; }
+        function hideAddModal() { document.getElementById('staffOverlay').style.display = 'none'; }
         function togglePass() {
             var f = document.getElementById('staffPass');
             f.type = f.type === 'password' ? 'text' : 'password';
-        }
-        function showConfirm(icon, title, msg, url, type) {
-            confirmUrl = url;
-            document.getElementById('confirmIcon').textContent = icon;
-            document.getElementById('confirmTitle').textContent = title;
-            document.getElementById('confirmMsg').textContent = msg;
-            var btn = document.getElementById('confirmBtn');
-            btn.className = 'btn btn-' + type;
-            btn.textContent = 'Confirm';
-            document.getElementById('confirmOverlay').style.display = 'flex';
-        }
-        function hideConfirm() {
-            document.getElementById('confirmOverlay').style.display = 'none';
-        }
-        function doConfirm() {
-            window.location.href = confirmUrl;
         }
     </script>
 </body>

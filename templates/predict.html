@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Predictions - Inventory System</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: #f0f2f5; }
@@ -100,9 +101,9 @@
         <a href="/predict" class="active">🤖 AI Predictions</a>
         <a href="/reports">📊 Reports</a>
         {% if session['role'] == 'admin' %}
-<a href="/import_excel">📥 Import Excel</a>
-<a href="/manage_staff">👥 Manage Staff</a>
-{% endif %}
+        <a href="/import_excel">📥 Import Excel</a>
+        <a href="/manage_staff">👥 Manage Staff</a>
+        {% endif %}
         <a href="/change_password">🔑 Change Password</a>
         <a href="/logout" style="color:#ff6b6b; margin-top:10px;">🚪 Logout</a>
     </div>
@@ -116,25 +117,23 @@
             </div>
         </div>
 
-        <!-- AI Workflow -->
         <div class="workflow-box">
             <h6 style="color:#38ef7d;">🔬 AI Workflow — How Predictions Are Generated</h6>
             <div style="margin-top:10px; display:flex; flex-wrap:wrap; align-items:center;">
-                <span class="workflow-step">1️⃣ Collect Transaction History</span>
+                <span class="workflow-step">1. Collect Transaction History</span>
                 <span class="workflow-arrow">→</span>
-                <span class="workflow-step">2️⃣ Group by Date (Daily Consumption)</span>
+                <span class="workflow-step">2. Group by Date (Daily Consumption)</span>
                 <span class="workflow-arrow">→</span>
-                <span class="workflow-step">3️⃣ Apply Linear Regression (scikit-learn)</span>
+                <span class="workflow-step">3. Apply Linear Regression (scikit-learn)</span>
                 <span class="workflow-arrow">→</span>
-                <span class="workflow-step">4️⃣ Predict Next-Day Consumption</span>
+                <span class="workflow-step">4. Predict Next-Day Consumption</span>
                 <span class="workflow-arrow">→</span>
-                <span class="workflow-step">5️⃣ Calculate Days Remaining</span>
+                <span class="workflow-step">5. Calculate Days Remaining</span>
                 <span class="workflow-arrow">→</span>
-                <span class="workflow-step">6️⃣ Generate Reorder Schedule</span>
+                <span class="workflow-step">6. Generate Reorder Schedule</span>
             </div>
         </div>
 
-        <!-- Overall Accuracy -->
         <div class="card mb-4">
             <div class="card-body">
                 <h6>📊 AI Model Accuracy Verification (R² Score)</h6>
@@ -150,7 +149,6 @@
             </div>
         </div>
 
-        <!-- Prediction Cards -->
         {% for p in predictions %}
         <div class="prediction-card 
             {% if p['overstock'] %}overstock
@@ -158,22 +156,20 @@
             {% else %}success{% endif %}">
 
             <div class="row align-items-center">
-                <!-- Product Name & Badges -->
                 <div class="col-md-2">
                     <h6 class="mb-1"><strong>{{ p['name'] }}</strong></h6>
                     <span class="badge bg-secondary">{{ p['category'] }}</span><br>
                     <span class="mt-1 d-inline-block">
                         {% if p['overstock'] %}
-                            <span class="badge bg-warning text-dark">⚠️ Overstock!</span>
+                            <span class="badge bg-warning text-dark">Overstock!</span>
                         {% elif p['reorder_needed'] %}
-                            <span class="badge bg-danger">🚨 Reorder Now!</span>
+                            <span class="badge bg-danger">Reorder Now!</span>
                         {% else %}
-                            <span class="badge bg-success">✅ Stock OK</span>
+                            <span class="badge bg-success">Stock OK</span>
                         {% endif %}
                     </span>
                 </div>
 
-                <!-- Stats -->
                 <div class="col-md-7">
                     <div class="row g-2">
                         <div class="col-3">
@@ -201,18 +197,16 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Reorder Schedule -->
                     <div class="mt-2">
                         <span class="badge bg-{{ p['urgency_color'] }} p-2" style="font-size:12px;">
-                            📅 {{ p['reorder_urgency'] }}
+                            {{ p['reorder_urgency'] }}
                         </span>
                         <span class="badge bg-light text-dark p-2 ms-2" style="font-size:12px;">
-                            📊 Data Points: {{ p['data_points'] }} days
+                            Data Points: {{ p['data_points'] }} days
                         </span>
                     </div>
                 </div>
 
-                <!-- Accuracy -->
                 <div class="col-md-3">
                     <div class="stat-box">
                         <p style="font-size:12px; color:#666;">AI Accuracy (R²)</p>
