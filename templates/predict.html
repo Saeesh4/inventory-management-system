@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Predictions - Inventory System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; }
+        .sidebar {
+            background: #1a1a2e;
+            min-height: 100vh;
+            padding: 20px;
+            position: fixed;
+            width: 250px;
+        }
+        .sidebar a {
+            color: #aaa;
+            text-decoration: none;
+            display: block;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: #16213e;
+            color: white;
+        }
+        .main-content { margin-left: 250px; padding: 30px; }
+        .topbar {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .prediction-card {
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 5px solid #ccc;
+        }
+        .prediction-card.danger { border-left-color: #ff4b2b; background: #fff5f5; }
+        .prediction-card.success { border-left-color: #38ef7d; background: #f5fff8; }
+        .prediction-card.overstock { border-left-color: #f7971e; background: #fff9f0; }
+        .stat-box {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .stat-box h4 { font-size: 24px; font-weight: 700; margin: 0; }
+        .stat-box p { margin: 0; color: #666; font-size: 12px; }
+        .accuracy-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e0e0e0;
+            margin-top: 5px;
+        }
+        .accuracy-fill {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+        }
+        .workflow-box {
+            background: #1a1a2e;
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .workflow-step {
+            display: inline-block;
+            background: #16213e;
+            border-radius: 8px;
+            padding: 8px 15px;
+            margin: 5px;
+            font-size: 13px;
+        }
+        .workflow-arrow {
+            color: #38ef7d;
+            font-size: 20px;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h4 style="color:white; margin-bottom:30px;">📦 Inventory</h4>
+        <a href="/dashboard">🏠 Dashboard</a>
+        <a href="/products">📦 Products</a>
+        <a href="/suppliers">🏭 Suppliers</a>
+        <a href="/transactions">🔄 Transactions</a>
+        <a href="/predict" class="active">🤖 AI Predictions</a>
+        <a href="/reports">📊 Reports</a>
+        {% if session['role'] == 'admin' %}
+<a href="/import_excel">📥 Import Excel</a>
+<a href="/manage_staff">👥 Manage Staff</a>
+{% endif %}
+        <a href="/change_password">🔑 Change Password</a>
+        <a href="/logout" style="color:#ff6b6b; margin-top:10px;">🚪 Logout</a>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h5 class="mb-0">🤖 AI Inventory Predictions</h5>
+            <div>
+                <span class="badge bg-dark me-2">Linear Regression (scikit-learn)</span>
+                <span class="badge bg-success">Avg Accuracy: {{ avg_accuracy }}%</span>
+            </div>
+        </div>
+
+        <!-- AI Workflow -->
+        <div class="workflow-box">
+            <h6 style="color:#38ef7d;">🔬 AI Workflow — How Predictions Are Generated</h6>
+            <div style="margin-top:10px; display:flex; flex-wrap:wrap; align-items:center;">
+                <span class="workflow-step">1️⃣ Collect Transaction History</span>
+                <span class="workflow-arrow">→</span>
+                <span class="workflow-step">2️⃣ Group by Date (Daily Consumption)</span>
+                <span class="workflow-arrow">→</span>
+                <span class="workflow-step">3️⃣ Apply Linear Regression (scikit-learn)</span>
+                <span class="workflow-arrow">→</span>
+                <span class="workflow-step">4️⃣ Predict Next-Day Consumption</span>
+                <span class="workflow-arrow">→</span>
+                <span class="workflow-step">5️⃣ Calculate Days Remaining</span>
+                <span class="workflow-arrow">→</span>
+                <span class="workflow-step">6️⃣ Generate Reorder Schedule</span>
+            </div>
+        </div>
+
+        <!-- Overall Accuracy -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6>📊 AI Model Accuracy Verification (R² Score)</h6>
+                <p class="text-muted" style="font-size:13px;">R² score measures how well the Linear Regression model fits the historical consumption data. A score above 70% indicates reliable predictions.</p>
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div style="flex:1;">
+                        <div class="accuracy-bar">
+                            <div class="accuracy-fill" style="width:{{ avg_accuracy }}%"></div>
+                        </div>
+                    </div>
+                    <strong>{{ avg_accuracy }}% Overall Accuracy</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prediction Cards -->
+        {% for p in predictions %}
+        <div class="prediction-card 
+            {% if p['overstock'] %}overstock
+            {% elif p['reorder_needed'] %}danger
+            {% else %}success{% endif %}">
+
+            <div class="row align-items-center">
+                <!-- Product Name & Badges -->
+                <div class="col-md-2">
+                    <h6 class="mb-1"><strong>{{ p['name'] }}</strong></h6>
+                    <span class="badge bg-secondary">{{ p['category'] }}</span><br>
+                    <span class="mt-1 d-inline-block">
+                        {% if p['overstock'] %}
+                            <span class="badge bg-warning text-dark">⚠️ Overstock!</span>
+                        {% elif p['reorder_needed'] %}
+                            <span class="badge bg-danger">🚨 Reorder Now!</span>
+                        {% else %}
+                            <span class="badge bg-success">✅ Stock OK</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <!-- Stats -->
+                <div class="col-md-7">
+                    <div class="row g-2">
+                        <div class="col-3">
+                            <div class="stat-box">
+                                <h4 style="color:#0072ff">{{ p['current_stock'] }}</h4>
+                                <p>Current Stock</p>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="stat-box">
+                                <h4 style="color:#11998e">{{ p['lr_daily_avg'] }}</h4>
+                                <p>AI Daily Usage</p>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="stat-box">
+                                <h4 style="color:#ff416c">{{ p['days_remaining'] }}</h4>
+                                <p>Days Left</p>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="stat-box">
+                                <h4 style="color:#f7971e">{{ p['suggested_order'] }}</h4>
+                                <p>Suggested Order</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Reorder Schedule -->
+                    <div class="mt-2">
+                        <span class="badge bg-{{ p['urgency_color'] }} p-2" style="font-size:12px;">
+                            📅 {{ p['reorder_urgency'] }}
+                        </span>
+                        <span class="badge bg-light text-dark p-2 ms-2" style="font-size:12px;">
+                            📊 Data Points: {{ p['data_points'] }} days
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Accuracy -->
+                <div class="col-md-3">
+                    <div class="stat-box">
+                        <p style="font-size:12px; color:#666;">AI Accuracy (R²)</p>
+                        <h4 style="color:#6f42c1;">{{ p['accuracy'] }}%</h4>
+                        <div class="accuracy-bar mt-1">
+                            <div class="accuracy-fill" style="width:{{ p['accuracy'] }}%"></div>
+                        </div>
+                        <p style="font-size:11px; color:#999; margin-top:4px;">
+                            Reorder Level: {{ p['reorder_level'] }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
