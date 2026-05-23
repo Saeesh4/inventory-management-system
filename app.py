@@ -100,7 +100,7 @@ def add_product():
     cur.execute("INSERT INTO products (name, category, quantity, unit_price, reorder_level, supplier_id) VALUES (%s, %s, %s, %s, %s, %s)",
                 (name, category, quantity, unit_price, reorder_level, supplier_id))
     db.commit()
-    flash('Product added successfully!')
+    flash(f'✅ "{name}" added successfully!')
     return redirect(url_for('products'))
 
 @app.route('/delete_product/<int:id>')
@@ -108,10 +108,12 @@ def delete_product(id):
     if 'user' not in session:
         return redirect(url_for('login'))
     db = get_db()
-    cur = db.cursor()
+    cur = db.cursor(dictionary=True)
+    cur.execute("SELECT name FROM products WHERE id=%s", (id,))
+    product = cur.fetchone()
     cur.execute("DELETE FROM products WHERE id=%s", (id,))
     db.commit()
-    flash('Product deleted!')
+    flash(f'🗑️ "{product["name"]}" deleted successfully!')
     return redirect(url_for('products'))
 
 @app.route('/suppliers')
@@ -137,7 +139,7 @@ def add_supplier():
     cur.execute("INSERT INTO suppliers (name, contact, email, address) VALUES (%s, %s, %s, %s)",
                 (name, contact, email, address))
     db.commit()
-    flash('Supplier added successfully!')
+    flash(f'✅ "{name}" added successfully!')
     return redirect(url_for('suppliers'))
 
 @app.route('/delete_supplier/<int:id>')
@@ -145,10 +147,12 @@ def delete_supplier(id):
     if 'user' not in session:
         return redirect(url_for('login'))
     db = get_db()
-    cur = db.cursor()
+    cur = db.cursor(dictionary=True)
+    cur.execute("SELECT name FROM suppliers WHERE id=%s", (id,))
+    supplier = cur.fetchone()
     cur.execute("DELETE FROM suppliers WHERE id=%s", (id,))
     db.commit()
-    flash('Supplier deleted!')
+    flash(f'🗑️ "{supplier["name"]}" deleted successfully!')
     return redirect(url_for('suppliers'))
 
 @app.route('/transactions')
@@ -172,7 +176,19 @@ def add_transaction():
     quantity = int(request.form['quantity'])
     notes = request.form['notes']
     db = get_db()
-    cur = db.cursor()
+    cur = db.cursor(dictionary=True)
+
+    # Block negative stock for OUT transactions
+    if transaction_type == 'OUT':
+        cur.execute("SELECT quantity FROM products WHERE id = %s", (product_id,))
+        row = cur.fetchone()
+        current_stock = row['quantity']
+        if quantity > current_stock:
+            flash(f'Insufficient stock! Only {current_stock} units available.', 'danger')
+            cur.close()
+            db.close()
+            return redirect(url_for('transactions'))
+
     cur.execute("INSERT INTO transactions (product_id, transaction_type, quantity, notes) VALUES (%s, %s, %s, %s)",
                 (product_id, transaction_type, quantity, notes))
     if transaction_type == 'IN':
@@ -180,7 +196,9 @@ def add_transaction():
     else:
         cur.execute("UPDATE products SET quantity = quantity - %s WHERE id = %s", (quantity, product_id))
     db.commit()
-    flash('Transaction recorded successfully!')
+    cur.close()
+    db.close()
+    flash('Transaction recorded successfully!', 'success')
     return redirect(url_for('transactions'))
 
 @app.route('/predict')
@@ -539,6 +557,42 @@ def suspend_staff(id):
         else:
             flash(f"✅ {user['username']} has been reactivated successfully!")
     return redirect(url_for('manage_staff'))
+
+@app.route('/edit_product/<int:id>', methods=['POST'])
+def edit_product(id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    name = request.form['name']
+    category = request.form['category']
+    quantity = request.form['quantity']
+    unit_price = request.form['unit_price']
+    reorder_level = request.form['reorder_level']
+    supplier_id = request.form['supplier_id']
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("""UPDATE products SET name=%s, category=%s, quantity=%s,
+                   unit_price=%s, reorder_level=%s, supplier_id=%s WHERE id=%s""",
+                (name, category, quantity, unit_price, reorder_level, supplier_id, id))
+    db.commit()
+    flash(f'✅ "{name}" updated successfully!')
+    return redirect(url_for('products'))
+ 
+ 
+@app.route('/edit_supplier/<int:id>', methods=['POST'])
+def edit_supplier(id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    name = request.form['name']
+    contact = request.form['contact']
+    email = request.form['email']
+    address = request.form['address']
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("""UPDATE suppliers SET name=%s, contact=%s, email=%s, address=%s WHERE id=%s""",
+                (name, contact, email, address, id))
+    db.commit()
+    flash(f'✅ "{name}" updated successfully!')
+    return redirect(url_for('suppliers'))
 
 if __name__ == '__main__':
     app.run(debug=True)

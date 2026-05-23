@@ -56,6 +56,56 @@
         }
         .upload-area:hover { background: #e9ecef; }
         .format-table th { background: #1a1a2e; color: white; }
+    @media (max-width: 768px) {
+    .sidebar {
+    width: 100%;
+    min-height: auto;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    gap: 4px;
+    align-items: center;
+}
+.sidebar h4 {
+    width: 100%;
+    margin-bottom: 4px !important;
+}
+.sidebar a {
+    padding: 8px 10px;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+    .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    table {
+        font-size: 13px;
+    }
+    table td, table th {
+        padding: 6px 8px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar {
+        width: 180px;
+    }
+    .main-content {
+        margin-left: 180px;
+        padding: 20px;
+    }
+    .sidebar a {
+        font-size: 13px;
+        padding: 10px 10px;
+    }
+}
     </style>
 </head>
 <body>
@@ -70,7 +120,7 @@
         <a href="/import_excel" class="active">📥 Import Excel</a>
         <a href="/manage_staff">👥 Manage Staff</a>
         <a href="/change_password">🔑 Change Password</a>
-        <a href="/logout" style="color:#ff6b6b; margin-top:10px;">🚪 Logout</a>
+        <a href="/logout" style="color:#ff6b6b; margin-top:0px;">🚪 Logout</a>
     </div>
 
     <div class="main-content">
