@@ -268,8 +268,17 @@ def predict():
         # Days remaining
         days_remaining = round(product['quantity'] / lr_daily_avg, 1) if lr_daily_avg > 0 else 999
 
+        # Reorder needed flag
+        reorder_needed = product['quantity'] <= product['reorder_level']
+
+        # Overstock detection (more than 5x reorder level)
+        overstock = product['quantity'] > (product['reorder_level'] * 5)
+
         # Reorder schedule
-        if days_remaining <= 3:
+        if overstock:
+            reorder_urgency = f'Stock sufficient for {int(days_remaining)} days'
+            urgency_color = 'success'
+        elif days_remaining <= 3:
             reorder_urgency = 'URGENT - Reorder Today!'
             urgency_color = 'danger'
         elif days_remaining <= 7:
@@ -281,12 +290,6 @@ def predict():
         else:
             reorder_urgency = f'Stock sufficient for {int(days_remaining)} days'
             urgency_color = 'success'
-
-        # Reorder needed flag
-        reorder_needed = product['quantity'] <= product['reorder_level']
-
-        # Overstock detection (more than 5x reorder level)
-        overstock = product['quantity'] > (product['reorder_level'] * 5)
 
         # Suggested order quantity
         suggested_order = max(0, (product['reorder_level'] * 3) - product['quantity'])
