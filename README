@@ -1,0 +1,217 @@
+Appendix E: Installation and Setup Guide
+The following step-by-step guide describes how to install and run the application on a fresh Windows 11 machine.
+
+E.1 Prerequisites
+•	Python 3.10 or later installed — download from https://www.python.org/downloads/
+•	MySQL 8.0 Community Server installed — download from https://dev.mysql.com/downloads/mysql/
+•	Git installed — download from https://git-scm.com/download/win
+•	A terminal application (Windows Command Prompt, PowerShell, or Windows Terminal)
+
+E.2 Installation Steps
+Step 1 — Clone the Repository
+git clone https://github.com/Saeesh4/inventory-management-system.git
+cd inventory-management-system
+
+Step 2 — Install Python Dependencies
+pip install -r requirements.txt
+
+Step 3 — Set Up the MySQL Database
+mysql -u root -p
+source schema.sql
+exit
+
+Step 4 — Create the .env File
+Create a file named .env in the project root folder with the following content (replace values as appropriate):
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=inventory_db
+SECRET_KEY=your_random_secret_key_here
+
+Step 5 — Generate Historical Data (Optional)
+py generate_data.py
+
+Step 6 — Run the Application
+py app.py
+
+Step 7 — Open in Browser
+Navigate to http://127.0.0.1:5000 in your browser. Log in with:
+Username: admin
+Password: admin123
+
+Appendix F: GitHub Repository Details
+
+Item	Details
+Repository URL	https://github.com/Saeesh4/inventory-management-system
+Repository Name	inventory-management-system
+Visibility	Public
+Primary Language	Python (Flask)
+Branch	main
+Key Files	app.py, schema.sql, requirements.txt, .gitignore, generate_data.py, performance_test.py
+README	Includes project overview, installation guide, and feature list
+Table A.1: GitHub Repository Summary
+
+Appendix G: List of Abbreviations
+
+Abbreviation	Full Form
+AI	Artificial Intelligence
+API	Application Programming Interface
+ARIMA	AutoRegressive Integrated Moving Average
+BCA	Bachelor of Computer Applications
+CSV	Comma-Separated Values
+DB	Database
+DFD	Data Flow Diagram
+ERP	Enterprise Resource Planning
+FK	Foreign Key
+HTML	HyperText Markup Language
+HTTP	HyperText Transfer Protocol
+IDE	Integrated Development Environment
+IoT	Internet of Things
+KPI	Key Performance Indicator
+LSTM	Long Short-Term Memory (neural network)
+MCA	Master of Computer Applications
+ML	Machine Learning
+MS	MSc (DS): Master of Science in Data Science
+MySQL	My Structured Query Language
+OOP	Object-Oriented Programming
+PDF	Portable Document Format
+PK	Primary Key
+RBAC	Role-Based Access Control
+REST	Representational State Transfer
+SDLC	Software Development Life Cycle
+SQL	Structured Query Language
+UAT	User Acceptance Testing
+UI/UX	User Interface / User Experience
+UML	Unified Modelling Language
+URL	Uniform Resource Locator
+WSGI	Web Server Gateway Interface
+Table A.2: List of Abbreviations
+ 
+Appendix H: User Manual
+Full-Stack Inventory Management System with AI-Powered Stock Prediction
+H.1 Introduction
+This User Manual provides step-by-step instructions for using the Full-Stack Inventory Management System with AI-Powered Stock Prediction. The system is a web-based application accessible via a browser at http://localhost:5000. It supports two user roles — Admin and Staff — each with a defined set of permissions.
+
+Module	Admin Access	Staff Access
+Dashboard	Full access — view all stats, low stock alerts	Full access — view all stats, low stock alerts
+Products	Add, Edit, Delete, View	Add, Edit, Delete, View
+Suppliers	Add, Edit, Delete, View	Add, Edit, Delete, View
+Transactions	Record Stock IN/OUT, View all	Record Stock IN/OUT, View all
+AI Predictions	View predictions for all products	View predictions for all products
+Reports	View charts, export CSV/PDF	View charts, export CSV/PDF
+Manage Staff	Add staff, suspend/reactivate accounts	Not accessible
+Change Password	Change own password	Change own password
+
+Table H.1: Module Access Rights by User Role
+H.2 Getting Started — Accessing the System
+Prerequisites: The application must be running locally. If you are a student/developer running the system for the first time, refer to Appendix E (Installation and Setup Guide) before proceeding.
+
+1.	Open a web browser (Google Chrome recommended).
+2.	Navigate to: http://localhost:5000
+3.	You will be redirected to the Login page.
+4.	Enter your registered Email Address and Password.
+5.	Click the Login button. You will be directed to the Dashboard.
+
+ℹ️ If you see a 'This site can't be reached' error, ensure that the Flask application (app.py) is running in your terminal or command prompt.
+H.3 Dashboard
+The Dashboard is the home screen displayed immediately after login. It provides a real-time overview of the inventory system.
+
+The Dashboard contains the following sections:
+•	Summary Cards: Four cards displaying Total Products, Total Suppliers, Total Transactions, and Low Stock Items count.
+•	Low Stock Alert Table: A table listing all products where current stock quantity is at or below the defined reorder level. Each row shows Product Name, Category, Current Quantity, and Reorder Level.
+
+⚠️ If the Low Stock Alert Table shows products, take immediate action by recording a Stock IN transaction or placing a supplier order.
+H.4 Products Module
+The Products module allows management of the product catalogue. Admin users can add, edit, and delete products. Staff users can only view the product list.
+
+H.4.1 Adding a New Product
+6.	Click 'Products' in the left sidebar.
+7.	Fill in the Add New Product form on the left side of the page: Product Name, Category, Quantity, Price, and Reorder Level.
+8.	Click the Add Product button. The product will appear in the product table.
+
+H.4.2 Editing a Product 
+9.	In the product table, click the Edit (pencil) icon next to the product.
+10.	Update the required fields in the edit form.
+11.	Click Save Changes.
+
+H.4.3 Deleting a Product  
+12.	Click the Delete (trash) icon next to the product.
+13.	Confirm the deletion in the confirmation prompt.
+
+ℹ️ Deleting a product will also remove its associated transaction history. This action cannot be undone.
+H.5 Suppliers Module
+The Suppliers module maintains a directory of all suppliers. Admin users can add, edit, and delete suppliers; Staff users can view the list.
+
+H.5.1 Adding a Supplier 
+14.	Click 'Suppliers' in the left sidebar.
+15.	Fill in Supplier Name, Contact Person, Email, Phone, and Address in the Add Supplier form.
+16.	Click Add Supplier.
+
+H.5.2 Editing or Deleting a Supplier  
+17.	Use the Edit or Delete icons in the supplier table, the same way as in the Products module.
+H.6 Transactions Module
+The Transactions module is the core operational module. Both Admin and Staff can record Stock IN (goods received) and Stock OUT (goods dispatched/consumed) transactions.
+
+H.6.1 Recording a Stock Transaction
+18.	Click 'Transactions' in the left sidebar.
+19.	Select the Product from the dropdown menu.
+20.	Select the Transaction Type: Stock IN or Stock OUT.
+21.	Enter the Quantity.
+22.	Click Add Transaction. The product's stock quantity will be updated automatically.
+
+⚠️ For Stock OUT transactions: if the requested quantity exceeds the current stock, the system will display an 'Insufficient stock' error and the transaction will not be saved.
+H.7 AI Predictions Module
+The AI Predictions module uses a Linear Regression model (scikit-learn) trained on historical stock-OUT transactions to forecast each product's daily consumption rate and estimated days until stockout.
+
+H.7.1 Reading a Prediction Card
+•	Product Name & Badge: Displays the product and its current status — 🚨 Reorder Now (< reorder level), ✅ Stock OK, ⚠️ Overstock.
+•	Current Stock: The live-stock quantity pulled from the database.
+•	AI Daily Usage: The predicted daily consumption rate calculated by the Linear Regression model.
+•	Days Left: Estimated number of days before stockout, based on current stock divided by daily usage.
+•	Suggested Order: Recommended quantity to order, calculated as the reorder level minus current stock.
+•	AI Accuracy (R²): The R-squared score measuring model fit. Values above 70% indicate reliable predictions.
+•	Reorder Urgency Badge: Colour-coded urgency — red for immediate, orange for soon, green for no action.
+
+ℹ️ Products with fewer than 2 stock-OUT transactions will display 'N/A' for prediction values. Record more transactions to enable AI predictions for those products.
+H.8 Reports Module
+The Reports module provides visual analytics and data export options.
+
+•	Bar Charts: Visual representation of Stock IN and Stock OUT quantities per product.
+•	Low Stock Table: A summary table of all products below their reorder level.
+•	CSV Export: Click the 'Export CSV' button to download the full transaction ledger as a .csv file, compatible with Microsoft Excel and Google Sheets.
+•	PDF Export: Click the 'Export PDF' button to download a formatted PDF transaction ledger generated by ReportLab.
+H.9 Manage Staff Module (Admin Only)
+This module is accessible only to Admin users. It allows the administrator to manage staff accounts.
+
+H.9.1 Adding a New Staff User
+23.	Click 'Manage Staff' in the sidebar (visible to Admin only).
+24.	Fill in the staff member's Full Name, Email, and Password in the Add Staff form.
+25.	Click Add Staff Member. The new account will appear in the staff table with the 'staff' role.
+
+H.9.2 Suspending or Reactivating a Staff Account
+26.	In the staff table, use the Suspend or Reactivate button next to the relevant account.
+27.	Suspended accounts cannot log in. Reactivated accounts regain full staff access immediately.
+
+⚠️ An admin account cannot be suspended through this module. Only staff-role accounts can be suspended.
+H.10 Change Password
+All users (Admin and Staff) can change their own password at any time.
+
+28.	Click 'Change Password' in the left sidebar.
+29.	Enter your Current Password.
+30.	Enter a New Password and confirm it in the Confirm New Password field.
+31.	Click Change Password. You will be logged out and redirected to the Login page.
+
+ℹ️ Passwords are stored using the scrypt hashing algorithm. Neither the Admin nor the system can retrieve your plaintext password. If you forget your password, contact the system administrator.
+H.11 Logging Out
+Click the 'Logout' link at the bottom of the left sidebar. Your session will be terminated and you will be redirected to the Login page. Always log out when leaving the system, especially on shared computers.
+H.12 Common Issues and Troubleshooting
+
+Issue	Likely Cause	Solution
+Cannot access http://localhost:5000	Flask app not running	Run: python app.py in the project directory
+'Insufficient stock' error on Stock OUT	Requested qty > available stock	Check current stock on Dashboard or Products page
+N/A shown in AI Predictions	Not enough transaction history	Record at least 2 Stock OUT transactions for the product
+Login fails with correct password	Account may be suspended	Contact Admin to reactivate your account
+CSV/PDF download does not start	Browser blocking downloads	Allow downloads from localhost in browser settings
+Page loads very slowly	MySQL server not running	Start MySQL service and ensure.env credentials are correct
+
+Table H.2: Common Issues and Solutions
